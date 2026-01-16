@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "rzmlib",
+  "version": "${version}",
+  "name": "RzmLib",
+  "description": "A lightweight library for RZMAO's mods.",
+  "authors": [
+    "RZMAO"
+  ],
+  "contact": {
+    "homepage": "https://rzmao.com",
+    "sources": "https://github.com/rzmaoo/RzmLib"
+  },
+  "license": "ARR",
+  "icon": "assets/rzmlib/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.rzmao.rzmlib.RzmLib"
+    ],
+    "client": [
+      "com.rzmao.rzmlib.client.RzmLibClient"
+    ],
+    "fabric-datagen": [
+      "com.rzmao.rzmlib.RzmLibDataGenerator"
+    ]
+  },
+  "mixins": [
+    "rzmlib.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
