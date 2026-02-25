@@ -13,12 +13,13 @@ import net.minecraft.util.Identifier;
  * @param keyCode 按下的键位代码 (e.g. GLFW.GLFW_KEY_X)
  * @param action  按下的动作 (e.g. key.forward / key.attack)
  */
-public record KeyInputPayload(int keyCode, String action) implements CustomPayload {
+public record KeyInputPayload(int keyCode, String action, boolean pressed) implements CustomPayload {
     public static final Id<KeyInputPayload> ID = new Id<>(Identifier.of(RzmLib.MOD_ID, "key_input"));
 
     public static final PacketCodec<RegistryByteBuf, KeyInputPayload> CODEC = PacketCodec.tuple(
             PacketCodecs.VAR_INT, KeyInputPayload::keyCode,
             PacketCodecs.STRING, KeyInputPayload::action,
+            PacketCodecs.BOOL, KeyInputPayload::pressed,
             KeyInputPayload::new
     );
 

@@ -11,15 +11,15 @@ public class RzmInputEvents {
 
     public static final Event<KeyReceiveCallback> C2S_KEY_INPUT = EventFactory.createArrayBacked(
             KeyReceiveCallback.class,
-            (listeners) -> (player, keyCode, action) -> {
+            (listeners) -> (player, keyCode, action, pressed) -> {
                 for (KeyReceiveCallback listener : listeners) {
-                    listener.handle(player, keyCode, action);
+                    listener.handle(player, keyCode, action, pressed);
                 }
             }
     );
 
     @FunctionalInterface
     public interface KeyReceiveCallback {
-        void handle(ServerPlayerEntity player, int keyCode, String action);
+        void handle(ServerPlayerEntity player, int keyCode, String action, boolean pressed);
     }
 }

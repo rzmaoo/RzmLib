@@ -13,7 +13,10 @@ public class RzmInputHandler {
     private static final Map<Integer, Boolean> lastKeyState = new HashMap<>();
 
     public static void onClientTick(MinecraftClient client) {
-        if (client.player == null || client.currentScreen != null) return;
+        if (client.player == null || client.currentScreen != null) {
+            releaseTrackedKeys();
+            return;
+        }
 
         long handle = client.getWindow().getHandle();
 
@@ -22,7 +25,7 @@ public class RzmInputHandler {
             if (condition.test(client)) {
                 detectAndSend(handle, keyCode, keyCode >= 0 && keyCode <= 7, "");
             } else {
-                lastKeyState.put(keyCode, false);
+                resetKeyState(keyCode, "");
             }
         });
 
@@ -34,7 +37,7 @@ public class RzmInputHandler {
                 detectAndSend(handle, keyCode, isMouse, binding.getTranslationKey());
             } else {
                 int keyCode = InputUtil.fromTranslationKey(binding.getBoundKeyTranslationKey()).getCode();
-                lastKeyState.put(keyCode, false);
+                resetKeyState(keyCode, binding.getTranslationKey());
             }
         });
     }
@@ -48,10 +51,28 @@ public class RzmInputHandler {
 
         boolean wasPressed = lastKeyState.getOrDefault(keyCode, false);
 
-        if (isPressed && !wasPressed) {
-            ClientPlayNetworking.send(new KeyInputPayload(keyCode, action));
+        if (isPressed != wasPressed) {
+            ClientPlayNetworking.send(new KeyInputPayload(keyCode, action, isPressed));
         }
 
         lastKeyState.put(keyCode, isPressed);
+    }
+
+    private static void resetKeyState(int keyCode, String action) {
+        if (keyCode == -1) return;
+
+        boolean wasPressed = lastKeyState.getOrDefault(keyCode, false);
+        if (wasPressed) {
+            ClientPlayNetworking.send(new KeyInputPayload(keyCode, action, false));
+        }
+        lastKeyState.put(keyCode, false);
+    }
+
+    private static void releaseTrackedKeys() {
+        RzmKeyRegistry.getMonitoredKeys().forEach((keyCode, condition) -> resetKeyState(keyCode, ""));
+        RzmKeyRegistry.getMonitoredBindings().forEach((binding, condition) -> {
+            int keyCode = InputUtil.fromTranslationKey(binding.getBoundKeyTranslationKey()).getCode();
+            resetKeyState(keyCode, binding.getTranslationKey());
+        });
     }
 }

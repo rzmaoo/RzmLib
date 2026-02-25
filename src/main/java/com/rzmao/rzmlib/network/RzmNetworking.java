@@ -20,8 +20,9 @@ public class RzmNetworking {
         ServerPlayNetworking.registerGlobalReceiver(KeyInputPayload.ID, (payload, context) -> {
             int keyCode = payload.keyCode();
             String action = payload.action();
+            boolean pressed = payload.pressed();
             context.server().execute(() -> {
-                RzmInputEvents.C2S_KEY_INPUT.invoker().handle(context.player(), keyCode, action);
+                RzmInputEvents.C2S_KEY_INPUT.invoker().handle(context.player(), keyCode, action, pressed);
             });
         });
     }
