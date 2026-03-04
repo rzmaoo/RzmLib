@@ -1,5 +1,6 @@
 package com.rzmao.rzmlib;
 
+import com.rzmao.rzmlib.command.RzmRootCommandRegistry;
 import com.rzmao.rzmlib.entity.RzmEntityTypes;
 import com.rzmao.rzmlib.morph.RzmPlayerMorphManager;
 import com.rzmao.rzmlib.network.RzmNetworking;
@@ -19,6 +20,7 @@ public class RzmLib implements ModInitializer {
         RzmNetworking.registerPayloads();
         RzmNetworking.registerC2SReceivers();
         RzmPlayerMorphManager.registerLifecycleCallbacks();
+        RzmRootCommandRegistry.registerRootCommand();
         RzmParticles.register();
     }
 }
