@@ -8,11 +8,11 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 服务端玩家变形状态管理器
  */
 public final class RzmPlayerMorphManager {
-    private static final ConcurrentHashMap<UUID, Identifier> ACTIVE_MORPHS = new ConcurrentHashMap<>();
+    private static final Map<UUID, Identifier> ACTIVE_MORPHS = new HashMap<>();
     private static final CopyOnWriteArrayList<RzmPlayerMorphListener> LISTENERS = new CopyOnWriteArrayList<>();
     private static final AtomicBoolean CALLBACKS_REGISTERED = new AtomicBoolean(false);
 
@@ -108,7 +108,7 @@ public final class RzmPlayerMorphManager {
         return true;
     }
 
-    private static void fireMorphChanged(ServerPlayerEntity player, @Nullable Identifier previousMorph, @Nullable Identifier currentMorph) {
+    private static void fireMorphChanged(ServerPlayerEntity player, Identifier previousMorph, Identifier currentMorph) {
         for (RzmPlayerMorphListener listener : LISTENERS) {
             try {
                 listener.onMorphChanged(player, previousMorph, currentMorph);
@@ -118,13 +118,13 @@ public final class RzmPlayerMorphManager {
         }
     }
 
-    private static void broadcastSync(MinecraftServer server, UUID playerId, @Nullable Identifier morphId) {
+    private static void broadcastSync(MinecraftServer server, UUID playerId, Identifier morphId) {
         for (ServerPlayerEntity target : server.getPlayerManager().getPlayerList()) {
             sendSync(target, playerId, morphId);
         }
     }
 
-    private static void sendSync(ServerPlayerEntity target, UUID playerId, @Nullable Identifier morphId) {
+    private static void sendSync(ServerPlayerEntity target, UUID playerId, Identifier morphId) {
         boolean active = morphId != null;
         String morphIdString = active ? morphId.toString() : "";
         ServerPlayNetworking.send(target, new PlayerMorphSyncPayload(playerId, active, morphIdString));
