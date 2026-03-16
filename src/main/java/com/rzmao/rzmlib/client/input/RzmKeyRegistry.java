@@ -1,13 +1,17 @@
 package com.rzmao.rzmlib.client.input;
 
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
 public class RzmKeyRegistry {
+    public static final String RZM_KEY_CATEGORY = "key.categories.rzm";
+
     private static final Map<Integer, Predicate<MinecraftClient>> MONITORED_KEYS = new HashMap<>();
     private static final Map<KeyBinding, Predicate<MinecraftClient>> MONITORED_BINDINGS = new HashMap<>();
 
@@ -30,6 +34,25 @@ public class RzmKeyRegistry {
 
     public static void registerBinding(KeyBinding binding) {
         registerBinding(binding, ALWAYS_TRUE);
+    }
+
+    /**
+     * 一次性完成 Rzm 系列模组的按键注册和输入监听
+     */
+    public static KeyBinding registerRzmBinding(String modId, String path, int defaultKeyCode,
+                                                Predicate<MinecraftClient> condition) {
+        KeyBinding binding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key." + modId + "." + path,
+                InputUtil.Type.KEYSYM,
+                defaultKeyCode,
+                RZM_KEY_CATEGORY
+        ));
+        registerBinding(binding, condition);
+        return binding;
+    }
+
+    public static KeyBinding registerRzmBinding(String modId, String path, int defaultKeyCode) {
+        return registerRzmBinding(modId, path, defaultKeyCode, ALWAYS_TRUE);
     }
 
     public static Map<Integer, Predicate<MinecraftClient>> getMonitoredKeys() {

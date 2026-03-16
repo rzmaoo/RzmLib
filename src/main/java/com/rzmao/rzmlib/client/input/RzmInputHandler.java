@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RzmInputHandler {
-    private static final Map<Integer, Boolean> lastKeyState = new HashMap<>();
+    private static final Map<String, Boolean> lastKeyState = new HashMap<>();
 
     public static void onClientTick(MinecraftClient client) {
         if (client.player == null || client.currentScreen != null) {
@@ -49,23 +49,25 @@ public class RzmInputHandler {
                 GLFW.glfwGetMouseButton(handle, keyCode) == GLFW.GLFW_PRESS :
                 InputUtil.isKeyPressed(handle, keyCode);
 
-        boolean wasPressed = lastKeyState.getOrDefault(keyCode, false);
+        String stateKey = getStateKey(keyCode, action);
+        boolean wasPressed = lastKeyState.getOrDefault(stateKey, false);
 
         if (isPressed != wasPressed) {
             ClientPlayNetworking.send(new KeyInputPayload(keyCode, action, isPressed));
         }
 
-        lastKeyState.put(keyCode, isPressed);
+        lastKeyState.put(stateKey, isPressed);
     }
 
     private static void resetKeyState(int keyCode, String action) {
         if (keyCode == -1) return;
 
-        boolean wasPressed = lastKeyState.getOrDefault(keyCode, false);
+        String stateKey = getStateKey(keyCode, action);
+        boolean wasPressed = lastKeyState.getOrDefault(stateKey, false);
         if (wasPressed) {
             ClientPlayNetworking.send(new KeyInputPayload(keyCode, action, false));
         }
-        lastKeyState.put(keyCode, false);
+        lastKeyState.put(stateKey, false);
     }
 
     private static void releaseTrackedKeys() {
@@ -74,5 +76,10 @@ public class RzmInputHandler {
             int keyCode = InputUtil.fromTranslationKey(binding.getBoundKeyTranslationKey()).getCode();
             resetKeyState(keyCode, binding.getTranslationKey());
         });
+    }
+
+    private static String getStateKey(int keyCode, String action) {
+        // 自定义绑定优先按 action 追踪，避免不同功能绑到同一键位时互相覆盖状态
+        return action.isEmpty() ? "#" + keyCode : action;
     }
 }
